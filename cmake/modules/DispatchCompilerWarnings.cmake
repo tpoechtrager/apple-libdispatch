@@ -1,6 +1,10 @@
 
 if("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC")
   # TODO: someone needs to provide the msvc equivalent warning flags
+elseif(WIN32)
+  # Tareting Windows but using a non-MSVC compiler.  Set -fms-extensions
+  # so that we can use __popcnt64
+  add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-fms-extensions>)
 else()
   add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-Werror>)
   add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-Wall>)
@@ -73,4 +77,8 @@ else()
     add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-Wno-shorten-64-to-32>)
   endif()
   add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-Wno-error=assign-enum>)
+
+  # Should re-enable after rdar://133498289 is fixed (ie. fixing the one mismatched cast in apply.c)
+  add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-Wno-cast-function-type-mismatch>)
+  add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-Wno-error=unknown-warning-option>)
 endif()
