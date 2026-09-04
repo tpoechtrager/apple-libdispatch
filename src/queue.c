@@ -6461,7 +6461,9 @@ _dispatch_pthread_root_queue_dispose(dispatch_queue_global_t dq,
 #pragma mark -
 #pragma mark dispatch_runloop_queue
 
+#ifndef __linux__
 DISPATCH_STATIC_GLOBAL(bool _dispatch_program_is_probably_callback_driven);
+#endif
 
 #if DISPATCH_COCOA_COMPAT
 DISPATCH_STATIC_GLOBAL(dispatch_once_t _dispatch_main_q_handle_pred);
@@ -6576,7 +6578,9 @@ _dispatch_runloop_queue_handle_init(void *ctxt)
 #endif
 	_dispatch_runloop_queue_set_handle(dq, handle);
 
+#ifndef __linux__
 	_dispatch_program_is_probably_callback_driven = true;
+#endif
 }
 
 static void
@@ -7032,7 +7036,9 @@ dispatch_main(void)
 	if (pthread_main_np()) {
 #endif
 		_dispatch_object_debug(&_dispatch_main_q, "%s", __func__);
+#ifndef __linux__
 		_dispatch_program_is_probably_callback_driven = true;
+#endif
 		_dispatch_ktrace0(ARIADNE_ENTER_DISPATCH_MAIN_CODE);
 #ifdef __linux__
 		// On Linux, if the main thread calls pthread_exit, the process becomes a zombie.
