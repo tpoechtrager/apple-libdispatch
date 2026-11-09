@@ -388,8 +388,10 @@ _dispatch_kevent_print_error(dispatch_kevent_t ke)
 	switch (ke->data) {
 	case 0:
 		return;
+#if DISPATCH_USE_KEVENT_QOS
 	case ERANGE: /* A broken QoS was passed to kevent_id() */
 		DISPATCH_INTERNAL_CRASH(ke->qos, "Invalid kevent priority");
+#endif
 	default:
 		// log the unexpected error
 		_dispatch_bug_kevent_client("kevent", _evfiltstr(ke->filter),
@@ -397,7 +399,7 @@ _dispatch_kevent_print_error(dispatch_kevent_t ke)
 				ke->flags & EV_DELETE ? "delete" :
 				ke->flags & EV_ADD ? "add" :
 				ke->flags & EV_ENABLE ? "enable" : "monitor",
-				(int)ke->data, ke->ident, ke->udata, du);
+				(int)ke->data, ke->ident, (uint64_t)(uintptr_t)ke->udata, du);
 	}
 }
 
@@ -591,7 +593,7 @@ _dispatch_kq_create(intptr_t *fd_ptr)
 	guardid_t guard = (uintptr_t)fd_ptr;
 	kqfd = guarded_kqueue_np(&guard, GUARD_CLOSE | GUARD_DUP);
 #else
-	(void)guard_ptr;
+	(void)fd_ptr;
 	kqfd = kqueue();
 #endif
 	if (kqfd == -1) {
@@ -860,7 +862,6 @@ _dispatch_kq_unote_set_kevent(dispatch_unote_t _du, dispatch_kevent_t dk,
 				du->du_priority),
 #endif
 	};
-	(void)pp; // if DISPATCH_USE_KEVENT_QOS == 0
 }
 
 DISPATCH_ALWAYS_INLINE
@@ -986,7 +987,7 @@ _dispatch_sync_ipc_handoff_end(dispatch_wlh_t wlh, mach_port_t port)
 #endif
 
 DISPATCH_NOINLINE
-static bool
+static __attribute__((unused)) bool
 _dispatch_kq_unote_update(dispatch_wlh_t wlh, dispatch_unote_t _du,
 		uint16_t action_flags)
 {
@@ -1300,7 +1301,7 @@ enum {
 	DISPATCH_WORKLOOP_SYNC_END,
 };
 
-static char const * const _dispatch_workloop_actions[] = {
+static char const * const _dispatch_workloop_actions[] __attribute__((unused)) = {
 	[DISPATCH_WORKLOOP_ASYNC]                       = "async",
 	[DISPATCH_WORKLOOP_ASYNC_FROM_SYNC]             = "async (from sync)",
 	[DISPATCH_WORKLOOP_ASYNC_DISCOVER_SYNC]         = "discover sync",
