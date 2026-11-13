@@ -6461,7 +6461,7 @@ _dispatch_pthread_root_queue_dispose(dispatch_queue_global_t dq,
 #pragma mark -
 #pragma mark dispatch_runloop_queue
 
-DISPATCH_STATIC_GLOBAL(bool _dispatch_program_is_probably_callback_driven);
+DISPATCH_STATIC_GLOBAL(DISPATCH_UNUSED bool _dispatch_program_is_probably_callback_driven);
 
 #if DISPATCH_COCOA_COMPAT
 DISPATCH_STATIC_GLOBAL(dispatch_once_t _dispatch_main_q_handle_pred);
